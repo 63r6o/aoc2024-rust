@@ -65,7 +65,7 @@ fn main() {
                     curr_one
                 };
 
-                let new_two = if is_valid(*expected_result, nums, true) {
+                let new_two = if new_one != curr_one || is_valid(*expected_result, nums, true) {
                     curr_two + expected_result
                 } else {
                     curr_two

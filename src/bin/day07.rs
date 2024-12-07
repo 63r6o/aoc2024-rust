@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use aoc2024_rust::read_from_args;
 
 fn main() {
@@ -20,55 +22,50 @@ fn main() {
         })
         .collect();
 
-    fn is_valid(
-        expected_result: &i64,
-        nums: &[i64],
-        current_result: i64,
-        with_concat: bool,
-    ) -> bool {
-        if nums.is_empty() {
-            return *expected_result == current_result;
+    fn is_valid(expected_result: i64, nums: &[i64], with_concat: bool) -> bool {
+        let mut queue: VecDeque<(usize, i64)> = VecDeque::new();
+        queue.push_back((nums.len() - 1, expected_result));
+
+        while !queue.is_empty() {
+            let (curr_index, curr_result) = queue.pop_front().unwrap();
+
+            if curr_index == 0 && (curr_result == 1 || curr_result == nums[0]) {
+                return true;
+            }
+
+            if curr_result % nums[curr_index] == 0 && 0 < curr_index {
+                queue.push_back((curr_index - 1, curr_result / nums[curr_index]))
+            }
+
+            let curr_result_string = curr_result.to_string();
+            let num_string = nums[curr_index].to_string();
+            if with_concat && curr_result_string.ends_with(&num_string) && 0 < curr_index {
+                let deconcatenated_result = &curr_result_string
+                    [..curr_result_string.len() - num_string.len()]
+                    .parse::<i64>()
+                    .unwrap_or_default();
+                queue.push_back((curr_index - 1, *deconcatenated_result))
+            }
+
+            if curr_result - nums[curr_index] > 0 && 0 < curr_index {
+                queue.push_back((curr_index - 1, curr_result - nums[curr_index]))
+            }
         }
 
-        if expected_result < &current_result {
-            return false;
-        }
-
-        let current_result_add = if current_result == -1 {
-            nums[0]
-        } else {
-            current_result + nums[0]
-        };
-        let current_result_mul = if current_result == -1 {
-            nums[0]
-        } else {
-            current_result * nums[0]
-        };
-        let current_result_con = if current_result == -1 {
-            nums[0]
-        } else {
-            // https://www.reddit.com/r/rust/comments/191l3ot/concatinate_two_numbers/
-            current_result * 10_i64.pow(nums[0].ilog10() + 1) + nums[0]
-            // let concated = current_result.to_string() + &nums[0].to_string();
-            // concated.parse().unwrap()
-        };
-
-        is_valid(expected_result, &nums[1..], current_result_add, with_concat)
-            || is_valid(expected_result, &nums[1..], current_result_mul, with_concat)
-            || (with_concat
-                && is_valid(expected_result, &nums[1..], current_result_con, with_concat))
+        false
     }
 
     let (part_one, part_two) =
         equations
             .iter()
             .fold((0, 0), |(curr_one, curr_two), (expected_result, nums)| {
-                let new_one = if is_valid(expected_result, nums, -1, false) {
+                let new_one = if is_valid(*expected_result, nums, false) {
                     curr_one + expected_result
                 } else {
                     curr_one
                 };
-                let new_two = if is_valid(expected_result, nums, -1, true) {
+
+                let new_two = if is_valid(*expected_result, nums, true) {
                     curr_two + expected_result
                 } else {
                     curr_two

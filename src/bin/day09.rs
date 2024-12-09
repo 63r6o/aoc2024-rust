@@ -17,17 +17,15 @@ fn main() {
         .collect();
 
     // (is_file, index)
-    let mut blocks_part_one = blocks
-        .iter()
-        .fold(vec![], |mut res, (is_file, id, size)| {
-            let mut curr_block: Vec<(bool, usize)> = vec![(*is_file, *id)]
-                .into_iter()
-                .flat_map(|block| repeat(block).take(*size))
-                .collect();
+    let mut blocks_part_one = blocks.iter().fold(vec![], |mut res, (is_file, id, size)| {
+        let mut curr_block: Vec<(bool, usize)> = vec![(*is_file, *id)]
+            .into_iter()
+            .flat_map(|block| repeat(block).take(*size))
+            .collect();
 
-            res.append(&mut curr_block);
-            res
-        });
+        res.append(&mut curr_block);
+        res
+    });
 
     let mut left: usize = 0;
     let mut right: usize = blocks_part_one.len() - 1;
@@ -47,11 +45,10 @@ fn main() {
     let part_one: usize = blocks_part_one
         .iter()
         .enumerate()
-        .filter_map(|(i, (is_file, id))| return if *is_file { id.checked_mul(i) } else { None })
+        .filter_map(|(i, (is_file, id))| if *is_file { id.checked_mul(i) } else { None })
         .sum();
 
     println!("part one: {part_one}");
-
 
     let mut curr_file_i = blocks.len() - 1;
     while curr_file_i > 0 {
@@ -69,7 +66,7 @@ fn main() {
                 blocks[curr_file_i].0 = false;
                 break;
             } else {
-                let tmp = blocks[curr_file_i].clone();
+                let tmp = blocks[curr_file_i];
                 blocks[curr_file_i].0 = false;
 
                 blocks[i].2 -= tmp.2;
@@ -94,7 +91,7 @@ fn main() {
         })
         .iter()
         .enumerate()
-        .filter_map(|(i, (is_file, id))| return if *is_file { id.checked_mul(i) } else { None })
+        .filter_map(|(i, (is_file, id))| if *is_file { id.checked_mul(i) } else { None })
         .sum();
 
     println!("part two: {part_two}")

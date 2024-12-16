@@ -26,25 +26,28 @@ fn main() {
     let height = 103;
     let steps = 100;
 
+    let step = |pos: &(i32, i32), vel: &(i32, i32), number_of_steps: i32| {
+        let x_offset = (pos.0 + (vel.0 * number_of_steps)) % width;
+        let y_offset = (pos.1 + (vel.1 * number_of_steps)) % height;
+
+        let new_x = if x_offset < 0 {
+            width + x_offset
+        } else {
+            x_offset
+        };
+
+        let new_y = if y_offset < 0 {
+            height + y_offset
+        } else {
+            y_offset
+        };
+
+        (new_x, new_y)
+    };
+
     let part_one: i32 = robots
         .iter()
-        .map(|(pos, vel)| {
-            let x_offset = (pos.0 + (vel.0 * steps)) % width;
-            let y_offset = (pos.1 + (vel.1 * steps)) % height;
-
-            let new_x = if x_offset < 0 {
-                width + x_offset
-            } else {
-                x_offset
-            };
-            let new_y = if y_offset < 0 {
-                height + y_offset
-            } else {
-                y_offset
-            };
-
-            (new_x, new_y)
-        })
+        .map(|(pos, vel)| step(pos, vel, steps))
         .fold([0, 0, 0, 0], |mut quadrants, (x, y)| {
             match (x.cmp(&(width / 2)), y.cmp(&(height / 2))) {
                 (std::cmp::Ordering::Greater, std::cmp::Ordering::Less) => quadrants[2] += 1,
@@ -63,23 +66,7 @@ fn main() {
     loop {
         let current_state: Vec<(i32, i32)> = robots
             .iter()
-            .map(|(pos, vel)| {
-                let x_offset = (pos.0 + (vel.0 * part_two)) % width;
-                let y_offset = (pos.1 + (vel.1 * part_two)) % height;
-
-                let new_x = if x_offset < 0 {
-                    width + x_offset
-                } else {
-                    x_offset
-                };
-                let new_y = if y_offset < 0 {
-                    height + y_offset
-                } else {
-                    y_offset
-                };
-
-                (new_x, new_y)
-            })
+            .map(|(pos, vel)| step(pos, vel, part_two))
             .collect();
 
         if current_state

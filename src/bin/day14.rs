@@ -87,12 +87,9 @@ fn main() {
                 pic[*y as usize][*x as usize] = 'x';
             });
 
-            for y in 0..height {
-                for x in 0..width {
-                    print!("{}", pic[y as usize][x as usize])
-                }
-                println!()
-            }
+            pic.iter()
+                .for_each(|line| println!("{}", line.iter().collect::<String>()));
+
             break;
         }
         part_two += 1;
